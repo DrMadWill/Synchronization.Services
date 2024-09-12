@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>DrMadWill.Event.Synchronization.Service</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>DrMadWill.Event.Synchronization.Services</Title>
+        <Authors>DrMadWill</Authors>
+        <PackageIcon>Dr.png</PackageIcon>
+        <Version>7</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="DrMW.EventBus.Core" Version="1.0.0" />
+      <PackageReference Include="DrMW.Repositories" Version="1.3.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Dr.png">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+      </None>
+    </ItemGroup>
+
+</Project>
