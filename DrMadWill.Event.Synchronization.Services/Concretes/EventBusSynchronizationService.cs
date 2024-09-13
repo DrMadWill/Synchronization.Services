@@ -173,4 +173,36 @@ public class EventBusSynchronizationService : ISynchronizationService
         }
        
     }
+    
+     
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Protected implementation of Dispose pattern.
+    /// </summary>
+    /// <param name="disposing">Indicates whether the method call comes from a Dispose method (its value is true) or from a finalizer (its value is false).</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            // Free any other managed objects here.
+        }
+    }
+
+    /// <summary>
+    /// Destructor for ReadRepository.
+    /// </summary>
+    ~EventBusSynchronizationService()
+    {
+        Dispose(false);
+    }
+    
+    
 }

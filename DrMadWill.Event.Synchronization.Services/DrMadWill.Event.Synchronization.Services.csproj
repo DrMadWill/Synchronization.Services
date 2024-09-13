@@ -9,12 +9,12 @@
         <Title>DrMadWill.Event.Synchronization.Services</Title>
         <Authors>DrMadWill</Authors>
         <PackageIcon>Dr.png</PackageIcon>
-        <Version>7</Version>
+        <Version>7.4</Version>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="DrMW.EventBus.Core" Version="1.0.0" />
-      <PackageReference Include="DrMW.Repositories" Version="1.3.0" />
+      <PackageReference Include="DrMW.Repositories" Version="1.5.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
     </ItemGroup>
 

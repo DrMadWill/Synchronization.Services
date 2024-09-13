@@ -4,7 +4,7 @@ using DrMW.EventBus.Core.BaseModels;
 
 namespace DrMadWill.Event.Synchronization.Service.Abstractions;
 
-public interface ISynchronizationService
+public interface ISynchronizationService : IDisposable
 {
     Task SendSyc<TEvent, TEntity, TPrimary>(Expression<Func<TEntity, bool>> predicate, string logKey, 
         params Expression<Func<TEntity, object>>[]? including)
