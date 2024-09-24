@@ -27,11 +27,12 @@ public interface ISynchronizationService : IDisposable
     /// Write database
     /// </summary>
     /// <param name="event"></param>
+    /// <param name="predicate"></param>
     /// <typeparam name="TEvent"></typeparam>
     /// <typeparam name="TEntity"></typeparam>
     /// <typeparam name="TPrimary"></typeparam>
     /// <returns></returns>
-    Task SyncData<TEvent, TEntity, TPrimary>(TEvent @event)
+    Task SyncData<TEvent, TEntity, TPrimary>(TEvent @event,Expression<Func<TEntity,bool>> predicate)
         where TEvent : IntegrationEvent, IHasDelete
         where TEntity : class, IOriginEntity<TPrimary>;
 
@@ -39,10 +40,11 @@ public interface ISynchronizationService : IDisposable
     /// Write Database
     /// </summary>
     /// <param name="event"></param>
+    /// <param name="predicate"></param>
     /// <typeparam name="TEvent"></typeparam>
     /// <typeparam name="TEntity"></typeparam>
     /// <returns></returns>
-    Task SyncData<TEvent, TEntity>(TEvent @event)
+    Task SyncData<TEvent, TEntity>(TEvent @event,Expression<Func<TEntity,bool>> predicate)
         where TEvent : IntegrationEvent, IHasDelete
         where TEntity : class;
 

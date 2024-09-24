@@ -43,7 +43,7 @@ public class EventBusSynchronizationService : ISynchronizationService
             }
 
             var model = _mapper.Map<TEvent>(entity);
-            _eventBus.Publish(model);
+            await _eventBus.Publish(model);
         }
         catch (Exception e)
         {
@@ -69,7 +69,7 @@ public class EventBusSynchronizationService : ISynchronizationService
             }
 
             var model = _mapper.Map<TEvent>(entity);
-            _eventBus.Publish(model);
+            await _eventBus.Publish(model);
         }
         catch (Exception e)
         {
@@ -96,7 +96,7 @@ public class EventBusSynchronizationService : ISynchronizationService
             foreach (var model in models)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(second));
-                _eventBus.Publish(model);
+                await _eventBus.Publish(model);
             }
         }
         catch (Exception e)
@@ -124,7 +124,7 @@ public class EventBusSynchronizationService : ISynchronizationService
             foreach (var model in models)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(second));
-                _eventBus.Publish(model);
+                await _eventBus.Publish(model);
             }
         }
         catch (Exception e)
@@ -133,45 +133,45 @@ public class EventBusSynchronizationService : ISynchronizationService
         }
     }
     
-    public virtual async Task SyncData<TEvent, TEntity, TPrimary>(TEvent @event) 
+    public virtual async Task SyncData<TEvent, TEntity, TPrimary>(TEvent @event,Expression<Func<TEntity,bool>> predicate) 
         where TEvent : IntegrationEvent, IHasDelete 
         where TEntity : class, IOriginEntity<TPrimary>
     {
         var repo = _unitOfWork. OriginRepository<TEntity, TPrimary>();
-        var dict = _mapper.Map<TEntity>(@event);
+        var dict =await  repo.Queryable(true).FirstOrDefaultAsync(predicate);
         
         if (@event.IsDeleted == true)
-        {
             await repo.RemoveAsync(dict);
-            await _unitOfWork.CommitAsync();
-        }
         else
         {
-            if (await repo.Table.AnyAsync(s => s.Id.Equals(dict.Id))) await repo.UpdateAsync(dict);
+            if (await repo.Table.AnyAsync(s => s.Id.Equals(dict.Id)))
+            {
+                _mapper.Map(@event, dict);
+                await repo.UpdateAsync(dict);
+            }
             else await repo.AddAsync(dict);
-            await _unitOfWork.CommitAsync();
         }
-       
+
+        await _unitOfWork.CommitAsync();
     }
     
-    public virtual async Task SyncData<TEvent, TEntity>(TEvent @event) 
+    public virtual async Task SyncData<TEvent, TEntity>(TEvent @event,Expression<Func<TEntity,bool>> predicate) 
         where TEvent : IntegrationEvent, IHasDelete 
         where TEntity : class
     {
         var repo = _unitOfWork.AnonymousRepository<TEntity>();
-        var dict = _mapper.Map<TEntity>(@event);
+        var dict = await repo.Queryable(true).FirstOrDefaultAsync(predicate);
         
         if (@event.IsDeleted == true)
-        {
             await repo.RemoveAsync(dict);
-            await _unitOfWork.CommitAsync();
-        }
         else
         {
+            _mapper.Map(@event, dict);
             await repo.UpdateAsync(dict);
-            await _unitOfWork.CommitAsync();
         }
-       
+        
+        await _unitOfWork.CommitAsync();
+
     }
     
      
