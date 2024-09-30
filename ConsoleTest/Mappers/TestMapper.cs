@@ -10,5 +10,8 @@ public class TestMapper: Profile
     {
         CreateMap<TestInfoIntegrationEvent, DummyInfo>()
             .ReverseMap();
+        
+        CreateMap<TestInfoIntegrationEvent, DommyDbS>()
+            .ReverseMap();
     }
 }

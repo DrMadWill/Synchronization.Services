@@ -5,6 +5,7 @@ using DrMW.Core.Models.Abstractions;
 using DrMW.EventBus.Core.Abstractions;
 using DrMW.EventBus.Core.BaseModels;
 using DrMW.Repositories.Abstractions.Works;
+using DrMW.Repositories.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -59,7 +60,7 @@ public class EventBusSynchronizationService : ISynchronizationService
         try
         {
             var repo = _unitOfWork.AnonymousRepository<TEntity>();
-            TEntity? entity = await  (including != null ? repo.FindByIncludingQueryable(predicate,including) : repo.Queryable().Where(predicate))
+            TEntity? entity = await  (including != null ? repo.FindByIncludingQueryable(predicate,including) : repo.Queryable().Where(predicate)).AsNoTracking()
                 .FirstOrDefaultAsync();
             
             if (entity is null)
@@ -85,7 +86,7 @@ public class EventBusSynchronizationService : ISynchronizationService
         try
         {
             var repo = _unitOfWork.Repository<TEntity, TPrimary>();
-            var all = await func(repo.Queryable()).ToListAsync();
+            var all = await func(repo.Queryable()).AsNoTracking().ToListAsync();
             
             
             if (!all.Any())
@@ -113,7 +114,7 @@ public class EventBusSynchronizationService : ISynchronizationService
         try
         {
             var repo = _unitOfWork.AnonymousRepository<TEntity>();
-            var all = await func(repo.Queryable()).ToListAsync();
+            var all = await func(repo.Queryable()).AsNoTracking().ToListAsync();
             
             
             if (!all.Any())
@@ -138,42 +139,36 @@ public class EventBusSynchronizationService : ISynchronizationService
         where TEntity : class, IOriginEntity<TPrimary>
     {
         var repo = _unitOfWork. OriginRepository<TEntity, TPrimary>();
-        var dict =await  repo.Queryable(true).FirstOrDefaultAsync(predicate);
-        
         if (@event.IsDeleted == true)
-            await repo.RemoveAsync(dict);
+        {
+            var dict = await  repo.Table.FirstOrDefaultAsync(predicate);
+            if (dict != null)
+            {
+                await repo.RemoveAsync(dict);
+            }
+        }
         else
         {
-            if (await repo.Table.AnyAsync(s => s.Id.Equals(dict.Id)))
+            if (await repo.Queryable().AsNoTracking().AnyAsync(predicate))
             {
-                _mapper.Map(@event, dict);
+                Console.WriteLine("Sync Service Update =>>>>> : {0} | {1} ", typeof(TEvent).Name,@event.JsonString());
+                var dict = await  repo.Table.FirstOrDefaultAsync(predicate);
+                _mapper.Map(@event, dict); 
                 await repo.UpdateAsync(dict);
             }
-            else await repo.AddAsync(dict);
+            else
+            {
+                Console.WriteLine("Sync Service Add =>>>>> : {0} | {1} ", typeof(TEvent).Name,@event.JsonString());
+                var newEntity = _mapper.Map<TEntity>(@event);
+                
+                await repo.AddAsync(newEntity);
+            }
         }
 
         await _unitOfWork.CommitAsync();
     }
     
-    public virtual async Task SyncData<TEvent, TEntity>(TEvent @event,Expression<Func<TEntity,bool>> predicate) 
-        where TEvent : IntegrationEvent, IHasDelete 
-        where TEntity : class
-    {
-        var repo = _unitOfWork.AnonymousRepository<TEntity>();
-        var dict = await repo.Queryable(true).FirstOrDefaultAsync(predicate);
-        
-        if (@event.IsDeleted == true)
-            await repo.RemoveAsync(dict);
-        else
-        {
-            _mapper.Map(@event, dict);
-            await repo.UpdateAsync(dict);
-        }
-        
-        await _unitOfWork.CommitAsync();
-
-    }
-    
+ 
      
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

@@ -12,6 +12,7 @@ public class TestDb : DbContext
     }
 
     public DbSet<DummyInfo> DummyInfos { get; set; }
+    public DbSet<DommyDbS> DommyDbSs { get; set; }
     
     
 }

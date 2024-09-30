@@ -22,11 +22,13 @@ services.AddAutoMapper(typeof(Program));
 services.AddSynchronizationServices();
 services.AddLogging();
 services.AddScoped<TestInfoHandler>();
+services.AddScoped<HelloHandler>();
 services.LayerRepositoriesRegister<TestUnitOfWork, TestQueryRepositories, TestServiceManager, TestDb, TestDb>();
 services.AddRabbitMq("Test.Ala","amqp://guest:guest@localhost:5672");
 var app = services.BuildServiceProvider();
 var eventBus = app.GetService<IEventBus>();
 await eventBus.Subscribe<TestInfoIntegrationEvent, TestInfoHandler>();
+await eventBus.Subscribe<HelloInfoIntegrationEvent, HelloHandler>();
 using var scop = app.CreateScope();
 var unitOfWork = scop.ServiceProvider.GetService<IUnitOfWork>();
 var sync = scop.ServiceProvider.GetService<ISynchronizationService>();
@@ -38,7 +40,7 @@ var s =  await unitOfWork.Repository<DummyInfo, Guid>()
 await unitOfWork.CommitAsync();
 while (true)
 {
-    await sync.SendSyc<TestInfoIntegrationEvent, DummyInfo, Guid>(s => s.Id == s.Id,s.Id.ToString());
+    await sync.SendSyc<TestInfoIntegrationEvent, DummyInfo, Guid>(v => v.Id == s.Id,s.Id.ToString());
     Console.ReadKey();
 }
 
