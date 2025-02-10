@@ -36,6 +36,8 @@ public interface ISynchronizationService : IDisposable
         where TEvent : IntegrationEvent, IHasDelete
         where TEntity : class, IOriginEntity<TPrimary>;
 
- 
+    Task RepairEvent(string id, string repairElement);
+    Task RepairEvent<TEntity>(string id);
+    Task RepairListing(Dictionary<string, Func<string, Task>> repairs);
 
 }

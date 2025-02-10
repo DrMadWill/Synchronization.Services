@@ -105,7 +105,30 @@ public class EventBusSynchronizationService : ISynchronizationService
             _logger.LogError(typeof(TEvent).Name + $" all not syc | error occur . logKey:  {logKey} | Error {e}");
         }
     }
+
+    public async Task RepairEvent(string id, string repairElement)
+        => await _eventBus.BasicPublishAsync(id, GenerateEventName(repairElement));
+
+    public async Task RepairEvent<TEntity>(string id)
+        => await _eventBus.BasicPublishAsync(id, GenerateEventName(typeof(TEntity).Name));
+
+    public async Task RepairListing(Dictionary<string,Func<string,Task>> repairs)
+    {
+        foreach (var repair in repairs)
+        {
+            var repairElement = GenerateEventName(repair.Key);
+            await _eventBus.StartBasicConsumeAsync(repairElement, async (message, eventName) =>
+            {
+                await repair.Value(message);
+            });
+        }
+    }
     
+    private string GenerateEventName(string eventName)
+    {
+        return eventName + "Repair";
+    }
+
     public async Task SendSyc<TEvent, TEntity>
         (Func<IQueryable<TEntity>,IQueryable<TEntity>> func,string logKey,int second,params Expression<Func<TEntity,object>>[]? including)
         where TEntity : class
