@@ -40,4 +40,15 @@ public interface ISynchronizationService : IDisposable
     Task RepairEvent<TEntity>(string id);
     Task RepairListing(Dictionary<string, Func<string, Task>> repairs);
 
+    Task<bool> DefaultRepair<TEntity, TPrimary>(string id, string repairElement = "")
+        where TEntity : class, IOriginEntity<TPrimary>;
+
+    Task<bool> DefaultRepairIntPrimary<TEntity>(int id, string repairElement = "")
+        where TEntity : class, IOriginEntity<int>;
+
+    Task<bool> DefaultRepairStringPrimary<TEntity>(string id, string repairElement = "")
+        where TEntity : class, IOriginEntity<string>;
+
+    Task<bool> DefaultRepairGuidPrimary<TEntity>(Guid id, string repairElement = "")
+        where TEntity : class, IOriginEntity<Guid>;
 }

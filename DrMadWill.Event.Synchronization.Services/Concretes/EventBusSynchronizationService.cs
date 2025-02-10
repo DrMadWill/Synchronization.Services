@@ -106,6 +106,31 @@ public class EventBusSynchronizationService : ISynchronizationService
         }
     }
 
+    public async Task<bool> DefaultRepair<TEntity,TPrimary>(string id,string repairElement = "")
+        where TEntity : class, IOriginEntity<TPrimary>
+    {
+        if (await _unitOfWork.OriginRepository<TEntity, TPrimary>()
+                .AnyAsync(s => s.Id.Equals(id)))
+            return false;
+        
+        var repair = string.IsNullOrEmpty(repairElement) ? typeof(TEntity).Name : repairElement;
+        await _eventBus.BasicPublishAsync(id, GenerateEventName(repair));
+        return true;
+    }
+
+
+    public async Task<bool> DefaultRepairIntPrimary<TEntity>(int id, string repairElement = "")
+        where TEntity : class, IOriginEntity<int>
+        => await DefaultRepair<TEntity, int>(id.ToString(), repairElement);
+
+    public async Task<bool> DefaultRepairStringPrimary<TEntity>(string id, string repairElement = "")
+        where TEntity : class, IOriginEntity<string>
+        => await DefaultRepair<TEntity, string>(id, repairElement);
+    
+    public async Task<bool> DefaultRepairGuidPrimary<TEntity>(Guid id, string repairElement = "")
+        where TEntity : class, IOriginEntity<Guid>
+        => await DefaultRepair<TEntity, Guid>(id.ToString(), repairElement);
+
     public async Task RepairEvent(string id, string repairElement)
         => await _eventBus.BasicPublishAsync(id, GenerateEventName(repairElement));
 

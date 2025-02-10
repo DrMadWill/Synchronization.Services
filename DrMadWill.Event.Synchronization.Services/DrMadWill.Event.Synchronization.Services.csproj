@@ -9,7 +9,7 @@
         <Title>DrMadWill.Event.Synchronization.Services</Title>
         <Authors>DrMadWill</Authors>
         <PackageIcon>avatar.png</PackageIcon>
-        <Version>8.9</Version>
+        <Version>9.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
