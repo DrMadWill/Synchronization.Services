@@ -106,7 +106,7 @@ public class EventBusSynchronizationService : ISynchronizationService
         }
     }
 
-    public async Task<bool> DefaultRepair<TEntity,TPrimary>(string id,string repairElement = "")
+    public async Task<bool> DefaultRepair<TEntity,TPrimary>(TPrimary id,string repairElement = "")
         where TEntity : class, IOriginEntity<TPrimary>
     {
         if (await _unitOfWork.OriginRepository<TEntity, TPrimary>()
@@ -114,14 +114,14 @@ public class EventBusSynchronizationService : ISynchronizationService
             return false;
         
         var repair = string.IsNullOrEmpty(repairElement) ? typeof(TEntity).Name : repairElement;
-        await _eventBus.BasicPublishAsync(id, GenerateEventName(repair));
+        await _eventBus.BasicPublishAsync(id.ToString(), GenerateEventName(repair));
         return true;
     }
 
 
     public async Task<bool> DefaultRepairIntPrimary<TEntity>(int id, string repairElement = "")
         where TEntity : class, IOriginEntity<int>
-        => await DefaultRepair<TEntity, int>(id.ToString(), repairElement);
+        => await DefaultRepair<TEntity, int>(id, repairElement);
 
     public async Task<bool> DefaultRepairStringPrimary<TEntity>(string id, string repairElement = "")
         where TEntity : class, IOriginEntity<string>
@@ -129,7 +129,7 @@ public class EventBusSynchronizationService : ISynchronizationService
     
     public async Task<bool> DefaultRepairGuidPrimary<TEntity>(Guid id, string repairElement = "")
         where TEntity : class, IOriginEntity<Guid>
-        => await DefaultRepair<TEntity, Guid>(id.ToString(), repairElement);
+        => await DefaultRepair<TEntity, Guid>(id, repairElement);
 
     public async Task RepairEvent(string id, string repairElement)
         => await _eventBus.BasicPublishAsync(id, GenerateEventName(repairElement));

@@ -35,12 +35,12 @@ public interface ISynchronizationService : IDisposable
     Task SyncData<TEvent, TEntity, TPrimary>(TEvent @event,Expression<Func<TEntity,bool>> predicate)
         where TEvent : IntegrationEvent, IHasDelete
         where TEntity : class, IOriginEntity<TPrimary>;
-
+ 
     Task RepairEvent(string id, string repairElement);
     Task RepairEvent<TEntity>(string id);
     Task RepairListing(Dictionary<string, Func<string, Task>> repairs);
 
-    Task<bool> DefaultRepair<TEntity, TPrimary>(string id, string repairElement = "")
+    Task<bool> DefaultRepair<TEntity, TPrimary>(TPrimary id, string repairElement = "")
         where TEntity : class, IOriginEntity<TPrimary>;
 
     Task<bool> DefaultRepairIntPrimary<TEntity>(int id, string repairElement = "")
